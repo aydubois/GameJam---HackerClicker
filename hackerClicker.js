@@ -1,7 +1,7 @@
 let blockMin = blockBS = blockSE = blockCyb = blockPhi = blockSpa = blockSpy= blockTro = blockRans = 1
 
 let nextAngleChangeTime = 1000;
-
+let restartAgain = 0;
 let bitcoinsTotal = 0;
 // PRICES
 let priceMining = .5, priceBreakSecurity = 3.5, priceSocialEngineering  = 17.5, priceCybernet = 20, pricePhishing = 120, priceTrojan = 140, priceSpam = 90, priceSpyware = 300, priceRansomware = 1000, priceBotnet =10000;
@@ -22,7 +22,16 @@ let totalBps = ( bpsPhishing + bpsRansomware
 let panelOk = 0; //Ouverture fermeture du panneau
 let nbF = 0;
 let homeBackground;
+let homeTitle;
 let group;
+let iMusic = 0;
+let homeMusic;
+let gameMusic;
+let soundCut;
+let soundOnOff=0;
+let arrowOnOff = 0;
+let arrow;
+let graphics3;
 const config = {
     width: 1024,
     height: 768,
@@ -34,43 +43,37 @@ const config = {
         preload: preload,
         create: create,
         update: update
-    }
+    },
+    audio: {
+        disableWebAudio: true
+    },
+    fps: {
+            target: 25,
+            min: 25,
+            forceSetTimeOut: true
+    },
+    autoCenter: true,
 }
+let nbI=1;
 let phaser = new Phaser.Game(config);
 let pointer = phaser.input.activePointer;
 function preload() {
+    this.load.audio('homeMusic', 'assets/sound/home.mp3');
+    this.load.audio('gameMusic', 'assets/sound/game1.mp3');
+
+    this.load.image('arrow', 'assets/arrow.png');
+
     for(let i =1;i<=36;i++) {
         this.load.image('homeBackground-'+i, 'assets/gif/home/frame-'+i+'.jpg');
     }
 
-
+    this.load.image('soundCut', 'assets/sound.png');
     this.load.image('homeTitle', 'assets/homeTitle.png');
     this.load.image('bkground', 'assets/bkground.gif')
 
-    this.load.image('frame-1', 'assets/spritesheet_background/frame-1.gif');
-    this.load.image('frame-2', 'assets/spritesheet_background/frame-2.gif');
-    this.load.image('frame-3', 'assets/spritesheet_background/frame-3.gif');
-    this.load.image('frame-4', 'assets/spritesheet_background/frame-4.gif');
-    this.load.image('frame-5', 'assets/spritesheet_background/frame-5.gif');
-    this.load.image('frame-6', 'assets/spritesheet_background/frame-6.gif');
-    this.load.image('frame-7', 'assets/spritesheet_background/frame-7.gif');
-    this.load.image('frame-8', 'assets/spritesheet_background/frame-8.gif');
-    this.load.image('frame-9', 'assets/spritesheet_background/frame-9.gif');
-    this.load.image('frame-10', 'assets/spritesheet_background/frame-10.gif');
-    this.load.image('frame-11', 'assets/spritesheet_background/frame-11.gif');
-    this.load.image('frame-12', 'assets/spritesheet_background/frame-12.gif');
-    this.load.image('frame-13', 'assets/spritesheet_background/frame-13.gif');
-    this.load.image('frame-14', 'assets/spritesheet_background/frame-14.gif');
-    this.load.image('frame-15', 'assets/spritesheet_background/frame-15.gif');
-    this.load.image('frame-16', 'assets/spritesheet_background/frame-16.gif');
-    this.load.image('frame-17', 'assets/spritesheet_background/frame-17.gif');
-    this.load.image('frame-18', 'assets/spritesheet_background/frame-18.gif');
-    this.load.image('frame-19', 'assets/spritesheet_background/frame-19.gif');
-    this.load.image('frame-20', 'assets/spritesheet_background/frame-20.gif');
-    this.load.image('frame-21', 'assets/spritesheet_background/frame-21.gif');
-    this.load.image('frame-22', 'assets/spritesheet_background/frame-22.gif');
-    this.load.image('frame-23', 'assets/spritesheet_background/frame-23.gif');
-    this.load.image('frame-24', 'assets/spritesheet_background/frame-24.gif');
+    for(let i =1;i<=24;i++) {
+        this.load.image('frame-'+i, 'assets/spritesheet_background/frame-'+i+'.gif');
+    }
 
 
     this.load.image('bitcoin', 'assets/bitcoin.png');
@@ -80,15 +83,27 @@ function preload() {
 
     panelBackground = new Phaser.Geom.Rectangle(0, 45, 445, 723);
     panelBottomBackground = new Phaser.Geom.Rectangle(5, 638, 435, 120);
+
     this.load.image('panelTree', ('assets/panelTree.png'));
 }
 
-function create() {
+function create(time) {
+    homeMusic = this.sound.add('homeMusic')
+    gameMusic = this.sound.add('gameMusic')
+
+    homeMusic.play()
+    this.anims.create({
+        key: 'backgroundAnim',
+        frames: [
+            { key: 'frame-'+nbI},
+            { key: 'frame-'+(nbI+1)},
+        ],
+        frameRate: 8,
+        repeat: 0,
+        yoyo:true
+    });
+    background = this.add.sprite(450,400,"bkground").setScale(2.85, 2.85).setInteractive();
     
-    this.physics.world.setFPS(30)
-    
-    background = this.add.image(450,400,"bkground").setScale(2.85, 2.85).setInteractive();
-    backgroundAnim = this.add.sprite(450,400, 'frame-1').setScale(2.85, 2.85);
     
     graphics = this.add.graphics();
     graphics.fillStyle(0x404040, .75);
@@ -107,7 +122,7 @@ function create() {
     panelTree.create(225,400,'panelTree');
 
     
-    btnRestart = this.add.sprite(36,81, "btnGlobal",40 ).setInteractive();
+    btnRestart = this.add.sprite(36,81, "btnGlobal",43 ).setInteractive();
     btnMining = this.add.sprite(409, 81, 'btnGlobal', 36).setInteractive();
     btnBreakSecu = this.add.sprite(225, 220, 'btnGlobal', 3).setInteractive();
     btnSocialEnge = this.add.sprite(120, 310, 'btnGlobal', 7).setInteractive();
@@ -119,11 +134,23 @@ function create() {
     btnRansomware = this.add.sprite(225, 490, 'btnGlobal', 31).setInteractive();
     btnBotnet = this.add.sprite(225, 580, 'btnGlobal', 35).setInteractive();
 
-
     containerBtnTree = this.add.container(0,0,[btnMining, btnBreakSecu, btnSocialEnge, btnCybernet, btnPhishing, btnSpam, btnTrojan, btnSpyware, btnRansomware, btnBotnet, btnRestart]);
+    
     
     background.on('pointerup', ()=>{
         homeBackground.destroy();
+        homeTitle.destroy();
+        if(iMusic == 0){
+            homeMusic.stop();
+            gameMusic.play();
+            gameMusic.setLoop(true);
+            iMusic ++
+        }
+        nbI++;
+        if(nbI==24) {
+            nbI=1;
+        }
+        background.play('backgroundAnim');
         let bitcoinAnimClick = bitcoin.create(this.input.mouse.manager.mousePointer.downX,this.input.manager.mousePointer.downY,'bitcoin').setScale(0.055,0.055);
         this.tweens.add({
             targets: bitcoinAnimClick,
@@ -185,9 +212,33 @@ function create() {
         callback: addBitcoinBps,
         loop: true
     });
+    
+    arrow = this.add.sprite(400, 600, 'arrow').setInteractive();
+    arrow.rotation = 3.12;
+
+    arrow.on('pointerup', ()=>{
+        if(arrowOnOff==0) {
+            containerBtnTree.setVisible(false);
+            panelTree.setVisible(false);
+            textRestart.setVisible(false);
+            graphics.setVisible(false);
+            arrow.setPosition(45,600);
+            arrow.rotation = 0;
+            arrowOnOff=1;
+        }
+        else {
+            containerBtnTree.setVisible(true);
+            panelTree.setVisible(true);
+            textRestart.setVisible(true);
+            graphics.setVisible(true);
+            arrow.setPosition(400,600);
+            arrow.rotation = 3.12;
+            arrowOnOff=0;
+        }
+    });
 
     this.anims.create({
-        key: 'homeTitle',
+        key: 'homeTitle1',
         frames: [
             { key: 'homeBackground-1'},
             { key: 'homeBackground-2'},
@@ -231,73 +282,145 @@ function create() {
     });
 
     homeBackground = this.add.sprite(515, 380, 'homeBackground-1').setScale(1.75, 2.27);
-    homeBackground.play('homeTitle');
+    homeTitle = this.add.sprite(515,400, 'homeTitle').setScale(1, 1);
+    homeBackground.play('homeTitle1');
     // this.anims.staggerPlay('homeTitle');
+
+    soundCut = this.add.sprite(15, 15, 'soundCut').setScale(0.07, 0.07).setInteractive();
+
+    soundCut.on('pointerup', ()=>{
+        if(soundOnOff==0) {
+            homeMusic.pause();
+            gameMusic.pause();
+            soundOnOff=1;
+        }
+        else {
+            gameMusic.play();
+            soundOnOff=0;
+        }
+        
+    });
+    
+    
+}
+function updateTextRestart(){
+    let increment = nbRestart == 0 ? 1 : nbRestart;
+    btnRestart.on('pointerover', ()=> {
+        textT1.setText('');
+        textT2.setText('');
+        textT3.setText('');
+        textT4.setText('');
+        if(totalBps >= 50*increment ){
+            btnRestart.setFrame(41);
+            textT2.setText('Si vous recommencez maintenant vous \naurez un bonus de : \n' +bonusRestart+'Bps').setTint(0xffffff);
+            
+        }else{
+            textT2.setText('Vous ne pouvez pas encore recommencer \nune partie. \nIspèce de noob').setTint(0xff0000);
+
+        }
+    }).on('pointerout', ()=>{
+        btnRestart.setFrame(43);
+        textT1.setText('');
+        textT2.setText('');
+        textT3.setText('');
+        textT4.setText('');
+        if(totalBps >= 50*increment ){
+            btnRestart.setFrame(40);
+        }
+
+    }).on('pointerdown', ()=>{
+        if(totalBps >= 50*increment ){
+            btnRestart.setFrame(42);
+        }
+    }).on('pointerup', ()=>{
+        if(totalBps >= 50*increment ){
+            btnRestart.setFrame(41);
+        }
+    })
 }
 function updateText(name, btn, level, price, bps, multiplFram, multiBPS) {
+    if(name=="Mining" && level==1 ){multiBPS = 0.1}
+
     
         // RAJOUTER LEVEL DEBLOCK
         btn.on('pointerover', () => {
-            btn.setFrame(1+multiplFram*4);
+            if(restartAgain != 1){
+                btn.setFrame(1+multiplFram*4);
+            }
             textT1.setText(name+' - Niv: '+ level);
             textT3.setText('Bps actuel: '+bps.toFixed(2));
-            textT4.setText('Bps suivant: '+(level*multiBPS).toFixed(2));
+            if(level == 0 ){
+                textT4.setText('Bps suivant: '+((1+1)*multiBPS+bonusRestart).toFixed(2));
+            }else{
+
+                textT4.setText('Bps suivant: '+((level+1)*multiBPS+bonusRestart).toFixed(2));
+            }
+
         if(price <= bitcoinsTotal){
             textT2.setText('Prix Niv supérieur: '+price.toFixed(2)+'B').setTint(0xffffff);
         }else{
             textT2.setText('Prix Niv supérieur: '+price.toFixed(2)+'B').setTint(0xff0000);
         }
+
         } )
         .on('pointerout', () => {
-            btn.setFrame(0+multiplFram*4);
+            if(restartAgain !=1){
+                btn.setFrame(0+multiplFram*4);
+            }
             textT1.setText('');
             textT2.setText('');
             textT3.setText('');
             textT4.setText('');
         if(price <= bitcoinsTotal){
-            
-            btn.setFrame(0+multiplFram*4);
+            if(restartAgain !=1){
+                btn.setFrame(0+multiplFram*4);
+            }
         }
         })
         .on('pointerdown', () => {
 
-        if(price <= bitcoinsTotal){
-            btn.setFrame(2+multiplFram*4);}
-
-            if(name == "Mining" && level >= 10-1){
+            if(price <= bitcoinsTotal){
+            if(restartAgain !=1){
+                btn.setFrame(2+multiplFram*4);
+            }
+                
+            }
+            if(name == "Mining" && levelMining >= 10-1){
+                console.log('Mining' + level)
                 btnBreakSecu.setFrame(0)
 
             }
-            if(name == "Break Security" && level >= 10-1){
+            if(name == "Break Security" && levelBreakSecurity >= 10-1){
                 btnSocialEnge.setFrame(4)
                 btnCybernet.setFrame(8)
             } 
-            if (name == "Social Engineering" && level >=10-1){
+            if (name == "Social Engineering" && levelSocialEngineering >=10-1){
                 btnSpam.setFrame(12)
             }
-            if (name == "Social Engineering" && level >=25-1){
+            if (name == "Social Engineering" && levelSocialEngineering >=25-1){
                 btnPhishing.setFrame(16)
             }
-            if (name == "Cybernet" && level >=10-1){
+            if (name == "Cybernet" && levelCybernet >=10-1){
                 btnSpyware.setFrame(24)
             }
-            if (name == "Cybernet" && level >=25-1){
+            if (name == "Cybernet" && levelCybernet >=25-1){
                 btnTrojan.setFrame(20)
             }
-            if ((name == "Trojan" && level >=50-1 && levelPhishing >= 50-1 )||
-            (name == "Phishing" && level >=50-1 && levelTrojan >= 50-1)
+            if ((name == "Trojan" && levelTrojan >=50-1 && levelPhishing >= 50-1 )||
+            (name == "Phishing" && levelPhishing >=50-1 && levelTrojan >= 50-1)
             ){
                 btnRansomware.setFrame(28)
             }
-            if (name == "RansomWare" && level >=100-1){
+            if (name == "RansomWare" && levelRansomware >=100-1){
                 btnBotnet.setFrame(32)
             }
-
         })
         
         .on('pointerup', () => {
         if(price <= bitcoinsTotal){
-            btn.setFrame(1+multiplFram*4);}
+            if(restartAgain !=1){
+                btn.setFrame(1+multiplFram*4);}
+            }
         });
         // btn.setFrame(0+multiplFram*4);
     
@@ -310,33 +433,35 @@ function updateText(name, btn, level, price, bps, multiplFram, multiBPS) {
     }
 
     function allEventBtn(){
+        updateTextRestart()
         updateText('Mining', btnMining, levelMining, priceMining, bpsMining, 10 - 1, 0.01);
-        if(levelMining >=10){
+        console.log(levelMining, priceMining, bpsMining)
+        if(levelMining >=10 || restartAgain == 1){
             updateText('Break Security', btnBreakSecu, levelBreakSecurity, priceBreakSecurity, bpsBreakSecurity, 1 - 1, 0.05);
         }
-        if(levelBreakSecurity >= 10){
+        if(levelBreakSecurity >= 10 || restartAgain == 1){
     
             updateText('Social Engineering', btnSocialEnge, levelSocialEngineering, priceSocialEngineering, bpsSocialEngineering, 2 - 1, 0.1);
             updateText('Cybernet', btnCybernet, levelCybernet, priceCybernet, bpsCybernet, 3 - 1, 0.5);
         }
-        if(levelSocialEngineering >= 10){
+        if(levelSocialEngineering >= 10 || restartAgain == 1){
             updateText('Spam', btnSpam, levelSpam, priceSpam, bpsSpam, 4 - 1, 0.8);
         }
-        if(levelSocialEngineering >=25){
+        if(levelSocialEngineering >=25 || restartAgain == 1){
     
             updateText('Phishing', btnPhishing, levelPhishing, pricePhishing, bpsPhishing, 5 - 1, 1.4);
         }
-        if(levelCybernet >=25){
+        if(levelCybernet >=25 || restartAgain == 1){
             updateText('Trojan', btnTrojan, levelTrojan, priceTrojan, bpsTrojan, 6 - 1, 1.5);
         }
-        if(levelCybernet >= 10){
+        if(levelCybernet >= 10 || restartAgain == 1){
     
             updateText('Spyware', btnSpyware, levelSpyware, priceSpyware, bpsSpyware, 7 - 1, 0.9);
         }
-        if(levelPhishing >= 50 && levelTrojan >= 50){
+        if(levelPhishing >= 50 && levelTrojan >= 50 || restartAgain == 1){
             updateText('RansomWare', btnRansomware, levelRansomware, priceRansomware, bpsRansomware, 8 - 1, 4);
         }
-        if(levelRansomware >=100){
+        if(levelRansomware >=100 || restartAgain == 1){
     
             updateText('Botnet', btnBotnet, levelBotnet, priceBotnet, bpsBotnet, 9 - 1, 20);
         }
@@ -344,8 +469,7 @@ function updateText(name, btn, level, price, bps, multiplFram, multiBPS) {
     function update(time, delta){
 
         allEventBtn();
-
-       delta = 0.4
+        this.events.off()
         textNumberBitcoin.setText('Bitcoins: '+ bitcoinsTotal.toFixed(2));
         totalBps = bpsPhishing + bpsRansomware 
         + bpsSocialEngineering + bpsSpam + bpsSpyware + bpsTrojan + bpsBotnet +
@@ -389,9 +513,15 @@ function updateText(name, btn, level, price, bps, multiplFram, multiBPS) {
         }
     }
 function settingText(name, level, bps, price,multiBPS ){
-        textT1.setText(name+' - Niv: '+ level);
-        textT3.setText('Bps actuel: '+bps.toFixed(2));
-        textT4.setText('Bps suivant: '+(level*multiBPS).toFixed(2));
+    if(name=="Mining" && level==1 ){multiBPS = 0.1}
+    textT1.setText(name+' - Niv: '+ level);
+    textT3.setText('Bps actuel: '+bps.toFixed(2));
+        if(level == 0){
+            textT4.setText('Bps suivant: '+((1+1)*multiBPS+bonusRestart).toFixed(2));
+        }else{
+
+            textT4.setText('Bps suivant: '+((level+1)*multiBPS+bonusRestart).toFixed(2));
+        }
     if(price <= bitcoinsTotal){
         textT2.setText('Prix Niv supérieur: '+price.toFixed(2)+'B').setTint(0xffffff);
     }else{
@@ -408,7 +538,7 @@ function eventBtnClick(image, name){
                     bitcoinsTotal = bitcoinsTotal - priceMining;
                     bpsMining = levelMining*0.01 + bonusRestart;
                     priceMining =  .5  * Math.pow(1.07,levelMining);
-                    settingText("mining", levelMining,bpsMining, priceMining, .01 )
+                    settingText("Mining", levelMining,bpsMining, priceMining, .01 )
                 }
                 break;
             case "breakSecurity":
@@ -417,7 +547,7 @@ function eventBtnClick(image, name){
                     bitcoinsTotal = bitcoinsTotal - priceBreakSecurity;
                     bpsBreakSecurity = levelBreakSecurity*0.05 + bonusRestart;
                     priceBreakSecurity = 3.5  * Math.pow(1.07,levelBreakSecurity);
-                    settingText("breakSecurity", levelBreakSecurity,bpsBreakSecurity, priceBreakSecurity, .05 )
+                    settingText("Break Security", levelBreakSecurity,bpsBreakSecurity, priceBreakSecurity, .05 )
                 }
                 break;
             case "socialEngineering":
@@ -426,7 +556,7 @@ function eventBtnClick(image, name){
                     bitcoinsTotal = bitcoinsTotal - priceSocialEngineering ;
                     bpsSocialEngineering =  levelSocialEngineering*0.1 +  bonusRestart;
                     priceSocialEngineering = 17.5  * Math.pow(1.08,levelSocialEngineering);
-                    settingText("socialEngineering", levelSocialEngineering,bpsSocialEngineering, priceSocialEngineering, .05 )
+                    settingText("Social Engineering", levelSocialEngineering,bpsSocialEngineering, priceSocialEngineering, .05 )
                 }
                 break;
             case "cybernet":
@@ -435,7 +565,7 @@ function eventBtnClick(image, name){
                     bitcoinsTotal = bitcoinsTotal - priceCybernet ;
                     bpsCybernet =  levelCybernet*0.5 +  bonusRestart;
                     priceCybernet = 20  * Math.pow(1.08,levelCybernet);
-                    settingText("cybernet", levelCybernet,bpsCybernet, priceCybernet, .5 )
+                    settingText("Cybernet", levelCybernet,bpsCybernet, priceCybernet, .5 )
                 }
                 break;
             case "phishing":
@@ -444,7 +574,7 @@ function eventBtnClick(image, name){
                     bitcoinsTotal = bitcoinsTotal - pricePhishing ;
                     bpsPhishing = levelPhishing*1.4 +  bonusRestart;
                     pricePhishing = 120 * Math.pow(1.10,levelPhishing);
-                    settingText("phishing", levelPhishing,bpsPhishing, pricePhishing, 1.4 )
+                    settingText("Phishing", levelPhishing,bpsPhishing, pricePhishing, 1.4 )
                 }
                 break;
             case "trojan":
@@ -453,7 +583,7 @@ function eventBtnClick(image, name){
                     bitcoinsTotal = bitcoinsTotal - priceTrojan ;
                     bpsTrojan = levelTrojan*1.5 +  bonusRestart;
                     priceTrojan = 300  * Math.pow(1.10,levelTrojan);
-                    settingText("trojan", levelTrojan,bpsTrojan, priceTrojan, 1.5 )
+                    settingText("Trojan", levelTrojan,bpsTrojan, priceTrojan, 1.5 )
             }
                 break;
             case "spam":
@@ -462,7 +592,7 @@ function eventBtnClick(image, name){
                     bitcoinsTotal = bitcoinsTotal - priceSpam ;
                     bpsSpam = levelSpam*0.8+  bonusRestart;
                     priceSpam = 90  * Math.pow(1.10,levelSpam);
-                    settingText("spam", levelSpam,bpsSpam, priceSpam, .8 )
+                    settingText("Spam", levelSpam,bpsSpam, priceSpam, .8 )
                 }
                 break;
             case "spyware":
@@ -471,7 +601,7 @@ function eventBtnClick(image, name){
                     bitcoinsTotal = bitcoinsTotal - priceSpyware ;
                     bpsSpyware =levelSpyware*0.9 +  bonusRestart;
                     priceSpyware = 110  * Math.pow(1.10,levelSpyware);
-                    settingText("spyware", levelSpyware,bpsSpyware, priceSpyware, .9 )
+                    settingText("SpyWare", levelSpyware,bpsSpyware, priceSpyware, .9 )
                 }
                 break;
             case "ransomware":
@@ -479,7 +609,8 @@ function eventBtnClick(image, name){
                     levelRansomware ++
                     bitcoinsTotal = bitcoinsTotal - priceRansomware ;
                     bpsRansomware =levelRansomware*4 +  bonusRestart;
-                    priceRansomware =  1000  * Math.pow(1.15,levelRansomware);settingText("ransomware", levelRansomware,bpsRansomware, priceRansomware, 4 )
+                    priceRansomware =  1000  * Math.pow(1.15,levelRansomware);
+                    settingText("Ransomware", levelRansomware,bpsRansomware, priceRansomware, 4 )
                 }
                 break;
             case "botnet":
@@ -488,38 +619,51 @@ function eventBtnClick(image, name){
                     bitcoinsTotal = bitcoinsTotal - priceBotnet ;
                     bpsBotnet = levelBotnet*20 +  bonusRestart;
                     priceBotnet =  10000  * Math.pow(1.20,levelBotnet);
-                    settingText("botnet", levelBotnet,bpsBotnet, priceBotnet, 20 )
+                    settingText("Botnet", levelBotnet,bpsBotnet, priceBotnet, 20 )
                 }
                 break;
             default:
                 break;
         }
-
+        
+        let increment = nbRestart == 0 ? 1 : nbRestart;
+        if(totalBps >= increment*50){
+            btnRestart.setFrame(40)
+        }
 
         
     })
 }
 
 function restart(btnRestart){
+    let increment = nbRestart == 0 ? 1 : nbRestart;
+    let bonus = [10,20,30,50,100,500,750,1000,2000,2500,3000,5000,10000,15000,30000,50000,70000,100000];
     btnRestart.on('pointerup', ()=> {
+        if(totalBps >= 50 * increment){
+            nbRestart++;
+            bonusRestart = bonus[nbRestart];
+            bitcoinsTotal = 0;
+            bpsMining = 0.1 + bonus[nbRestart]; bpsBreakSecurity = 0; bpsSocialEngineering  = 0; bpsCybernet = 0; bpsPhishing = 0; bpsTrojan = 0; bpsSpam = 0;bpsSpyware = 0; bpsRansomware = 0; bpsBotnet =0;
+            
+            levelMining = 1;
+            levelBreakSecurity = 0;
+            levelSocialEngineering =  0;levelCybernet =0;
+            levelPhishing = 0; levelTrojan =0;  levelSpam =0;
+            levelSpyware =  0;levelRansomware =  0;levelBotnet = 0;
+            priceMining = .5; priceBreakSecurity = 3.5; priceSocialEngineering  = 17.5; priceCybernet = 20;pricePhishing = 120; priceTrojan = 140; priceSpam = 90, priceSpyware = 300; priceRansomware = 1000; priceBotnet =10000;
 
-        nbRestart++;
-        bonusRestart = bonusRestart+10;
-        bitcoinsTotal = 0;
-        bpsMining =  bpsBreakSecurity =
-        bpsSocialEngineering =  bpsCybernet =
-        bpsPhishing =  bpsTrojan =  bpsSpam =
-        bpsSpyware =  bpsRansomware =  bpsBotnet = 0;
-
-        levelMining = 1;
-        levelBreakSecurity =
-        levelSocialEngineering =  levelCybernet =
-        levelPhishing =  levelTrojan =  levelSpam =
-        levelSpyware =  levelRansomware =  levelBotnet = 0;
-        console.log(nbRestart)
+            btnBreakSecu.setFrame(3)
+            btnCybernet.setFrame(11)
+            btnSocialEnge.setFrame(7)
+            btnSpam.setFrame(15)
+            btnPhishing.setFrame(19)
+            btnSpyware.setFrame(27)
+            btnTrojan.setFrame(23)
+            btnRansomware.setFrame(31)
+            btnBotnet.setFrame(35)
+            btnRestart.setFrame(43)
+            restartAgain = 1
+        }
     })
 }
-
-
-
 
