@@ -2,7 +2,7 @@ let blockMin = blockBS = blockSE = blockCyb = blockPhi = blockSpa = blockSpy= bl
 
 let nextAngleChangeTime = 1000;
 let restartAgain = 0;
-let bitcoinsTotal = 0;
+let bitcoinsTotal = 10000000;
 // PRICES
 let priceMining = .5, priceBreakSecurity = 3.5, priceSocialEngineering  = 17.5, priceCybernet = 20, pricePhishing = 120, priceTrojan = 140, priceSpam = 90, priceSpyware = 300, priceRansomware = 1000, priceBotnet =10000;
 // BPS
@@ -213,7 +213,7 @@ function create(time) {
         loop: true
     });
     
-    arrow = this.add.sprite(400, 600, 'arrow').setInteractive();
+    arrow = this.add.sprite(400, 600, 'arrow').setTint(0xCC00FF).setInteractive();
     arrow.rotation = 3.12;
 
     arrow.on('pointerup', ()=>{
@@ -319,13 +319,14 @@ function updateTextRestart(){
 
         }
     }).on('pointerout', ()=>{
-        btnRestart.setFrame(43);
         textT1.setText('');
         textT2.setText('');
         textT3.setText('');
         textT4.setText('');
         if(totalBps >= 50*increment ){
             btnRestart.setFrame(40);
+        }else{
+            btnRestart.setFrame(43);
         }
 
     }).on('pointerdown', ()=>{
@@ -340,89 +341,127 @@ function updateTextRestart(){
 }
 function updateText(name, btn, level, price, bps, multiplFram, multiBPS) {
     if(name=="Mining" && level==1 ){multiBPS = 0.1}
-
-    
+    let increment = nbRestart == 0 ? 1 : nbRestart;
+    let bonus = [10,20,30,50,100,500,750,1000,2000,2500,3000,5000,10000,15000,30000,50000,70000,100000];
         // RAJOUTER LEVEL DEBLOCK
         btn.on('pointerover', () => {
-            if(restartAgain != 1){
-                btn.setFrame(1+multiplFram*4);
-            }
-            textT1.setText(name+' - Niv: '+ level);
-            textT3.setText('Bps actuel: '+bps.toFixed(2));
-            if(level == 0 ){
-                textT4.setText('Bps suivant: '+((1+1)*multiBPS+bonusRestart).toFixed(2));
+            if(btn == btnRestart){
+                textT1.setText('');
+                textT3.setText('');
+                textT4.setText('');
+                if(totalBps >= 50*increment ){
+                    btnRestart.setFrame(41);
+                    textT2.setText('Si vous recommencez maintenant vous \naurez un bonus de : ' +bonus[nbRestart]+'Bps').setTint(0xffffff);
+                }else{
+                    textT2.setText('Vous ne pouvez pas encore recommencer \nune partie. \nIspèce de noob').setTint(0xff0000);
+
+                }
             }else{
-
-                textT4.setText('Bps suivant: '+((level+1)*multiBPS+bonusRestart).toFixed(2));
+                if(restartAgain != 1){
+                    btn.setFrame(1+multiplFram*4);
+                }
+                textT1.setText(name+' - Niv: '+ level);
+                textT3.setText('Bps actuel: '+bps.toFixed(2));
+                if(level == 0 ){
+                    textT4.setText('Bps suivant: '+((1+1)*multiBPS+bonusRestart).toFixed(2));
+                }else{
+                    textT4.setText('Bps suivant: '+((level+1)*multiBPS+bonusRestart).toFixed(2));
+                }
+                if(price <= bitcoinsTotal){
+                    textT2.setText('Prix Niv supérieur: '+price.toFixed(2)+'B').setTint(0xffffff);
+                }else{
+                    textT2.setText('Prix Niv supérieur: '+price.toFixed(2)+'B').setTint(0xff0000);
+                }
             }
-
-        if(price <= bitcoinsTotal){
-            textT2.setText('Prix Niv supérieur: '+price.toFixed(2)+'B').setTint(0xffffff);
-        }else{
-            textT2.setText('Prix Niv supérieur: '+price.toFixed(2)+'B').setTint(0xff0000);
-        }
-
         } )
         .on('pointerout', () => {
-            if(restartAgain !=1){
-                btn.setFrame(0+multiplFram*4);
+            if(btn == btnRestart){
+                textT1.setText('');
+                textT2.setText('');
+                textT3.setText('');
+                textT4.setText('');
+                if(totalBps >= 50*increment ){
+                    btnRestart.setFrame(40);
+                }else{
+                    btnRestart.setFrame(43);
+                }
             }
-            textT1.setText('');
-            textT2.setText('');
-            textT3.setText('');
-            textT4.setText('');
-        if(price <= bitcoinsTotal){
-            if(restartAgain !=1){
-                btn.setFrame(0+multiplFram*4);
+            else{
+                if(restartAgain !=1){
+                    btn.setFrame(0+multiplFram*4);
+                }
+                textT1.setText('');
+                textT2.setText('');
+                textT3.setText('');
+                textT4.setText('');
+                if(price <= bitcoinsTotal){
+                    if(restartAgain !=1){
+                        btn.setFrame(0+multiplFram*4);
+                    }
+                }
             }
-        }
         })
         .on('pointerdown', () => {
+            if(btn == btnRestart){
+                if(totalBps >= 50*increment ){
+                    btnRestart.setFrame(42);
+                }
+            }
+            else{
+                if(price <= bitcoinsTotal){
+                    if(restartAgain !=1){
+                        btn.setFrame(2+multiplFram*4);
+                    }
+                }
+                if(name == "Mining" && levelMining >= 10){
+                    console.log('Mining' + level)
+                    btnBreakSecu.setFrame(0)
 
-            if(price <= bitcoinsTotal){
-            if(restartAgain !=1){
-                btn.setFrame(2+multiplFram*4);
-            }
-                
-            }
-            if(name == "Mining" && levelMining >= 10-1){
-                console.log('Mining' + level)
-                btnBreakSecu.setFrame(0)
-
-            }
-            if(name == "Break Security" && levelBreakSecurity >= 10-1){
-                btnSocialEnge.setFrame(4)
-                btnCybernet.setFrame(8)
-            } 
-            if (name == "Social Engineering" && levelSocialEngineering >=10-1){
-                btnSpam.setFrame(12)
-            }
-            if (name == "Social Engineering" && levelSocialEngineering >=25-1){
-                btnPhishing.setFrame(16)
-            }
-            if (name == "Cybernet" && levelCybernet >=10-1){
-                btnSpyware.setFrame(24)
-            }
-            if (name == "Cybernet" && levelCybernet >=25-1){
-                btnTrojan.setFrame(20)
-            }
-            if ((name == "Trojan" && levelTrojan >=50-1 && levelPhishing >= 50-1 )||
-            (name == "Phishing" && levelPhishing >=50-1 && levelTrojan >= 50-1)
-            ){
-                btnRansomware.setFrame(28)
-            }
-            if (name == "RansomWare" && levelRansomware >=100-1){
-                btnBotnet.setFrame(32)
+                }
+                if(name == "Break Security" && levelBreakSecurity >= 10){
+                    btnSocialEnge.setFrame(4)
+                    btnCybernet.setFrame(8)
+                } 
+                if (name == "Social Engineering" && levelSocialEngineering >=10){
+                    btnSpam.setFrame(12)
+                }
+                if (name == "Social Engineering" && levelSocialEngineering >=25){
+                    btnPhishing.setFrame(16)
+                }
+                if (name == "Cybernet" && levelCybernet >=10){
+                    btnSpyware.setFrame(24)
+                }
+                if (name == "Cybernet" && levelCybernet >=25){
+                    btnTrojan.setFrame(20)
+                }
+                if ((name == "Trojan" && levelTrojan >=50 && levelPhishing >= 50)||
+                (name == "Phishing" && levelPhishing >=50 && levelTrojan >= 50)
+                ){
+                    btnRansomware.setFrame(28)
+                }
+                if (name == "RansomWare" && levelRansomware >=100){
+                    btnBotnet.setFrame(32)
+                }
+                if(totalBps  >=50*increment){
+                    btnRestart.setFrame(40)
+                    console.log("OKKKKK")
+                }
             }
         })
         
         .on('pointerup', () => {
-        if(price <= bitcoinsTotal){
-            if(restartAgain !=1){
-                btn.setFrame(1+multiplFram*4);}
+            if(btn == btnRestart){
+                if(totalBps >= 50*increment ){
+                    btnRestart.setFrame(41);
+                }
+            }
+            else{
+                if(price <= bitcoinsTotal){
+                    if(restartAgain !=1){
+                        btn.setFrame(1+multiplFram*4);}
+                }
             }
         });
-        // btn.setFrame(0+multiplFram*4);
     
 }
     function addBitcoinBps(){
@@ -433,9 +472,9 @@ function updateText(name, btn, level, price, bps, multiplFram, multiBPS) {
     }
 
     function allEventBtn(){
-        updateTextRestart()
+        // updateTextRestart()
+        updateText('Restart', btnRestart, null, null, null, null, null)
         updateText('Mining', btnMining, levelMining, priceMining, bpsMining, 10 - 1, 0.01);
-        console.log(levelMining, priceMining, bpsMining)
         if(levelMining >=10 || restartAgain == 1){
             updateText('Break Security', btnBreakSecu, levelBreakSecurity, priceBreakSecurity, bpsBreakSecurity, 1 - 1, 0.05);
         }
@@ -626,10 +665,10 @@ function eventBtnClick(image, name){
                 break;
         }
         
-        let increment = nbRestart == 0 ? 1 : nbRestart;
-        if(totalBps >= increment*50){
-            btnRestart.setFrame(40)
-        }
+        // let increment = nbRestart == 0 ? 1 : nbRestart;
+        // if(totalBps >= increment*50){
+        //     btnRestart.setFrame(40)
+        // }
 
         
     })
@@ -641,9 +680,9 @@ function restart(btnRestart){
     btnRestart.on('pointerup', ()=> {
         if(totalBps >= 50 * increment){
             nbRestart++;
-            bonusRestart = bonus[nbRestart];
+            bonusRestart = bonus[nbRestart-1];
             bitcoinsTotal = 0;
-            bpsMining = 0.1 + bonus[nbRestart]; bpsBreakSecurity = 0; bpsSocialEngineering  = 0; bpsCybernet = 0; bpsPhishing = 0; bpsTrojan = 0; bpsSpam = 0;bpsSpyware = 0; bpsRansomware = 0; bpsBotnet =0;
+            bpsMining = 0.1 + bonusRestart; bpsBreakSecurity = 0; bpsSocialEngineering  = 0; bpsCybernet = 0; bpsPhishing = 0; bpsTrojan = 0; bpsSpam = 0;bpsSpyware = 0; bpsRansomware = 0; bpsBotnet =0;
             
             levelMining = 1;
             levelBreakSecurity = 0;

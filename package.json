@@ -1,0 +1,22 @@
+{
+  "name": "gamejam",
+  "version": "1.0.0",
+  "description": "Hacker clicker",
+  "main": "index.html",
+  "dependencies": {
+    "phaser": "^3.24.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aydubois/GameJamTeamHackerClicker.git"
+  },
+  "author": "Erkagon, Ponyo, Noman",
+  "bugs": {
+    "url": "https://github.com/aydubois/GameJamTeamHackerClicker/issues"
+  },
+  "homepage": "https://github.com/aydubois/GameJamTeamHackerClicker#readme"
+}
