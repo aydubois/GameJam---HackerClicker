@@ -2,7 +2,7 @@ let blockMin = blockBS = blockSE = blockCyb = blockPhi = blockSpa = blockSpy= bl
 
 let nextAngleChangeTime = 1000;
 let restartAgain = 0;
-let bitcoinsTotal = 10000000;
+let bitcoinsTotal = 0;
 // PRICES
 let priceMining = .5, priceBreakSecurity = 3.5, priceSocialEngineering  = 17.5, priceCybernet = 20, pricePhishing = 120, priceTrojan = 140, priceSpam = 90, priceSpyware = 300, priceRansomware = 1000, priceBotnet =10000;
 // BPS
